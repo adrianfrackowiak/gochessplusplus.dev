@@ -29,11 +29,12 @@ func (app *Application) Mount() *chi.Mux {
 
 func (app *Application) Run(mux *chi.Mux) error {
 	srv := http.Server{
-		Addr:         app.Config.Addr,
-		Handler:      mux,
-		WriteTimeout: time.Second * 30,
-		ReadTimeout:  time.Second * 10,
-		IdleTimeout:  time.Minute,
+		Addr:              app.Config.Addr,
+		Handler:           mux,
+		WriteTimeout:      time.Second * 30,
+		ReadTimeout:       time.Second * 10,
+		ReadHeaderTimeout: time.Second * 5,
+		IdleTimeout:       time.Minute,
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
