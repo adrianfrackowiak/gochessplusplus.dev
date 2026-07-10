@@ -36,17 +36,18 @@ func (app *Application) Run(mux *chi.Mux) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	shutdownErr := make(chan error)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	shutdownErr := make(chan error, 1)
 	go func() {
-		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-		defer stop()
 		<-ctx.Done()
 
 		slog.Info("shutting down server...", "addr", srv.Addr)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 		defer cancel()
-		shutdownErr <- srv.Shutdown(ctx)
+		shutdownErr <- srv.Shutdown(shutdownCtx)
 	}()
 
 	slog.Info("starting server", "addr", app.Config.Addr)

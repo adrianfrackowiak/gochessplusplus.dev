@@ -6,10 +6,15 @@ import (
 )
 
 func writeJSON(w http.ResponseWriter, status int, data any) error {
+	body, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
+	_, err = w.Write(body)
 
-	return json.NewEncoder(w).Encode(data)
+	return err
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
@@ -19,12 +24,4 @@ func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	decoder.DisallowUnknownFields()
 
 	return decoder.Decode(data)
-}
-
-func writeJSONError(w http.ResponseWriter, status int, message string) error {
-	type envelope struct {
-		Error string `json:"error"`
-	}
-
-	return writeJSON(w, status, &envelope{Error: message})
 }
