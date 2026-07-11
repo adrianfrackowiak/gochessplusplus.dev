@@ -1,2 +1,1 @@
-export type { HealthStatusProps } from './healthStatus';
-export { default as HealthStatusComponent } from './healthStatus';
+export { HealthStatusComponent } from './healthStatus/healthStatus.component.tsx';
