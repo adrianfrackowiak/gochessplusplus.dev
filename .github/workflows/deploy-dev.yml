@@ -25,6 +25,13 @@ jobs:
           docker build -t ghcr.io/adrianfrackowiak/gochessplusplus-server:dev ./server
           docker push ghcr.io/adrianfrackowiak/gochessplusplus-server:dev
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
       - name: Build client (dev)
         working-directory: client
         env:
