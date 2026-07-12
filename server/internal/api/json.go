@@ -17,6 +17,7 @@ func writeJSON(w http.ResponseWriter, status int, data any) error {
 	return err
 }
 
+//nolint:unused // prepared ahead of the first POST endpoint that needs a JSON body
 func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1_048_576 // 1mb
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
