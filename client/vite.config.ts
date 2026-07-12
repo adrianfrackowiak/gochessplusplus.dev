@@ -13,8 +13,6 @@ export default defineConfig({
     },
   },
   server: {
-    // Dev-proxy: klient woła '/v1/...', ruch idzie do serwera Go bez CORS.
-    // W produkcji ten sam prefix przekierowuje nginx.
     proxy: {
       '/v1': {
         target: 'http://localhost:8080',
@@ -22,4 +20,5 @@ export default defineConfig({
       },
     },
   },
+  envDir: '../'
 });

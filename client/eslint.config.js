@@ -25,27 +25,20 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // 1. Zawsze końcowa pusta linia.
       '@stylistic/eol-last': ['error', 'always'],
-      // 2. Wszędzie średniki.
       '@stylistic/semi': ['error', 'always'],
-      // 3. Cudzysłowy zawsze pojedyncze ''.
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
       '@stylistic/jsx-quotes': ['error', 'prefer-single'],
-      // 4. Wszędzie spacje (np. import { Route, Routes }).
       '@stylistic/object-curly-spacing': ['error', 'always'],
       '@stylistic/array-bracket-spacing': ['error', 'never'],
       '@stylistic/comma-spacing': ['error', { before: false, after: true }],
       '@stylistic/keyword-spacing': ['error', { before: true, after: true }],
       '@stylistic/space-before-blocks': ['error', 'always'],
       '@stylistic/space-infix-ops': 'error',
-      // Równe wcięcia (2 spacje).
       '@stylistic/indent': ['error', 2],
       '@stylistic/jsx-indent-props': ['error', 2],
-      // Kolejność importów.
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      // 5. Wszystko typujemy.
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
