@@ -1,0 +1,63 @@
+name: Deploy to Prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push server image (prod)
+        run: |
+          docker build -t ghcr.io/adrianfrackowiak/gochessplusplus-server:prod ./server
+          docker push ghcr.io/adrianfrackowiak/gochessplusplus-server:prod
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Build client (prod)
+        working-directory: client
+        env:
+          VITE_API_BASE_URL: /api
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy server (prod)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/chess-project
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+
+      - name: Deploy client (prod)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "client/dist/*"
+          target: "/var/www/gochessplusplus/prod"
+          strip_components: 2
+
+      - name: Health check (prod)
+        run: |
+          sleep 3
+          curl -f https://gochessplusplus.dev/api/v1/health

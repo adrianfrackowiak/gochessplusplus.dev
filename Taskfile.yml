@@ -1,0 +1,152 @@
+# https://taskfile.dev
+version: '3'
+
+vars:
+  CLIENT_DIR: client
+  SERVER_DIR: server
+  ENGINE_DIR: engine
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  install:
+    desc: Install/prepare dependencies for all services
+    deps:
+      - client:install
+      - server:tidy
+      - engine:configure
+
+  dev:
+    desc: Run client (Vite) and server (air) in watch mode concurrently. Engine has no watch mode.
+    deps:
+      - client:dev
+      - server:dev
+
+  build:
+    desc: Build all services
+    deps:
+      - client:build
+      - server:build
+      - engine:build
+
+  test:all:
+    desc: Run tests for server and engine (client has no test runner configured yet)
+    deps:
+      - server:test
+      - engine:test
+
+  lint:
+    desc: Lint/format-check all services
+    deps:
+      - client:lint
+      - server:lint
+      - engine:format-check
+
+  client:install:
+    desc: Install client dependencies
+    dir: '{{.CLIENT_DIR}}'
+    cmds:
+      - npm install
+
+  client:dev:
+    desc: Run the Vite dev server
+    dir: '{{.CLIENT_DIR}}'
+    cmds:
+      - npm run dev
+
+  client:build:
+    desc: Type-check and build the client for production
+    dir: '{{.CLIENT_DIR}}'
+    cmds:
+      - npm run build
+
+  client:lint:
+    desc: Run ESLint
+    dir: '{{.CLIENT_DIR}}'
+    cmds:
+      - npm run lint
+
+  client:preview:
+    desc: Preview the production build
+    dir: '{{.CLIENT_DIR}}'
+    cmds:
+      - npm run preview
+
+  server:tidy:
+    desc: Tidy Go modules
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - go mod tidy
+
+  server:dev:
+    desc: Run the server with hot reload (air, see .air.toml)
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - air
+
+  server:run:
+    desc: Run the server without hot reload
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - go run ./cmd/api
+
+  server:build:
+    desc: Build the server binary
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - mkdir -p bin
+      - go build -o bin/server ./cmd/api
+
+  server:test:
+    desc: Run Go tests
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - go test ./...
+
+  server:lint:
+    desc: Run golangci-lint
+    dir: '{{.SERVER_DIR}}'
+    cmds:
+      - golangci-lint run
+
+  engine:configure:
+    desc: Configure the CMake build directory (tests enabled)
+    dir: '{{.ENGINE_DIR}}'
+    cmds:
+      - cmake -S . -B build -DBUILD_TESTING=ON
+
+  engine:build:
+    desc: Build the engine binary
+    dir: '{{.ENGINE_DIR}}'
+    deps:
+      - engine:configure
+    cmds:
+      - cmake --build build
+
+  engine:test:
+    desc: Build and run engine tests (Catch2/perft) via the test-all target
+    dir: '{{.ENGINE_DIR}}'
+    deps:
+      - engine:configure
+    cmds:
+      - cmake --build build --target test-all
+
+  engine:format:
+    desc: Format engine sources with clang-format
+    dir: '{{.ENGINE_DIR}}'
+    deps:
+      - engine:configure
+    cmds:
+      - cmake --build build --target format
+
+  engine:format-check:
+    desc: Check engine source formatting (CI-style, fails on unformatted code)
+    dir: '{{.ENGINE_DIR}}'
+    deps:
+      - engine:configure
+    cmds:
+      - cmake --build build --target format-check
