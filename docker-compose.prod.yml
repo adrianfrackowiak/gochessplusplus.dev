@@ -1,6 +1,9 @@
 services:
   server-prod:
     image: ghcr.io/adrianfrackowiak/gochessplusplus-server:prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
 
   postgres:
     image: postgres:16

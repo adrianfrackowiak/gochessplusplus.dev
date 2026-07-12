@@ -98,6 +98,7 @@ tasks:
     desc: Build the server binary
     dir: '{{.SERVER_DIR}}'
     cmds:
+      - mkdir -p bin
       - go build -o bin/server ./cmd/api
 
   server:test:
