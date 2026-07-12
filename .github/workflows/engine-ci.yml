@@ -1,0 +1,33 @@
+name: engine-ci
+
+on:
+  push:
+    paths:
+      - 'engine/**'
+  pull_request:
+    paths:
+      - 'engine/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CMake / build-essential / clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential clang-format
+
+      - name: Configure
+        run: cmake -S engine -B engine/build -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build engine/build
+
+      - name: Test
+        run: ctest --test-dir engine/build --output-on-failure
+
+      - name: Format check
+        run: cmake --build engine/build --target format-check
