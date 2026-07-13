@@ -45,8 +45,8 @@ jobs:
           script: |
             cd /opt/chess-project
             git pull
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 
       - name: Deploy client (prod)
         uses: appleboy/scp-action@v0.1.7
