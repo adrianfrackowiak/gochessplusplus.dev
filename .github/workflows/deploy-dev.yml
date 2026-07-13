@@ -45,6 +45,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/chess-project
+            git pull
             docker compose -f docker-compose.dev.yml pull
             docker compose -f docker-compose.dev.yml up -d
 
