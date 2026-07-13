@@ -5,20 +5,21 @@ services:
     env_file: .env.prod
     ports:
       - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-chess}
-      POSTGRES_USER: ${POSTGRES_USER:-chess}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set in production}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set in production}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in production}
-    ports:
-      - "127.0.0.1:5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_prod:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chess}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,10 +27,8 @@ services:
   redis:
     image: redis:7
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:6379:6379"
     volumes:
-      - redisdata:/data
+      - redisdata_prod:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -40,18 +39,18 @@ services:
     image: dpage/pgadmin4
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local.dev}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:?PGADMIN_EMAIL must be set in production}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?PGADMIN_PASSWORD must be set in production}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
-      - "127.0.0.1:8081:80"
+      - "127.0.0.1:8090:80"
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - pgadmin_data_prod:/var/lib/pgadmin
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
-  pgdata:
-  redisdata:
-  pgadmin_data:
+  pgdata_prod:
+  redisdata_prod:
+  pgadmin_data_prod:
