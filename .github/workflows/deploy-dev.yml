@@ -1,11 +1,29 @@
 name: Deploy to Dev
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches: [master]
 
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
 jobs:
+  server-ci:
+    uses: ./.github/workflows/server-ci.yml
+
+  client-ci:
+    uses: ./.github/workflows/client-ci.yml
+
+  engine-ci:
+    uses: ./.github/workflows/engine-ci.yml
+
   build-and-deploy:
+    needs: [server-ci, client-ci, engine-ci]
     runs-on: ubuntu-latest
     environment: development
     steps:
