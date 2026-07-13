@@ -2,8 +2,9 @@ services:
   server-dev:
     image: ghcr.io/adrianfrackowiak/gochessplusplus-server:dev
     restart: unless-stopped
+    env_file: .env.dev
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8080"
     
   postgres:
     image: postgres:16
@@ -43,7 +44,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-dev_only_password}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
-      - "127.0.0.1:8081:80"
+      - "127.0.0.1:8082:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
