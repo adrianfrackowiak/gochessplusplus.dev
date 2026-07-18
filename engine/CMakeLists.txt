@@ -10,7 +10,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-add_executable(engine src/main.cpp)
+add_executable(engine src/main.cpp
+        src/board/bitboard.cpp
+        src/board/bitboard.h)
+target_include_directories(engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_options(engine PRIVATE -Wall -Wextra -Wpedantic)
 
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
@@ -52,7 +55,10 @@ if(BUILD_TESTING)
 
     FetchContent_MakeAvailable(catch2)
 
-    add_executable(tests tests/test.cpp)
+    add_executable(tests tests/test.cpp
+            tests/board/bitboard_test.cpp
+            src/board/bitboard.cpp)
+    target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_compile_options(tests PRIVATE -Wall -Wextra -Wpedantic)
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 
